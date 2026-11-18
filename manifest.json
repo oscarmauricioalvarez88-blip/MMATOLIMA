@@ -5,9 +5,9 @@
   "name": "MMA Tolima",
   "orientation": "any",
   "scope": "/",
-  "short_name": "MMATolima.",
+  "short_name": "MMATolima",
   "start_url": "/",
-  "theme_color": "hsv(0, 100%, 54%)",
-  "id": "/?source=pwa.",
+  "theme_color": "#8b0000",
+  "id": "/?source=pwa",
   "description": "Plataforma oficial de inscripción y control de atletas de la Liga de Muay Thai y MMA del Tolima"
 }
