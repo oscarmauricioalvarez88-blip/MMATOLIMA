@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMA Tolima - Plataforma Científica Federada de Élite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        vinotinto: { 600: '#581827', 700: '#40111C', 800: '#2C0B12' },
+                        gold: { 500: '#D4AF37', 600: '#B89728' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #020617;
+            background-image: linear-gradient(to bottom, rgba(2, 6, 23, 0.96), rgba(44, 11, 18, 0.98)), 
+                              url('https://images.unsplash.com/photo-1549476464-37392f717541?w=1200&auto=format&fit=crop&q=60');
+            background-size: cover; background-position: center; background-attachment: fixed;
+        }
+        @media print {
+            body { background: #020617 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: white !important; }
+            .no-print { display: none !important; }
+            .print-container { background: #020617 !important; color: white !important; page-break-inside: avoid; }
+            .carnet-impresion {
+                background: linear-gradient(135deg, #2C0B12 0%, #0f172a 100%) !important;
+                border: 3px solid #D4AF37 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header Principal -->
+    <header class="bg-vinotinto-800/95 backdrop-blur border-b border-gold-500/30 sticky top-0 z-50 shadow-lg no-print">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="relative group cursor-pointer" onclick="cambiarLogoApp()" title="Haz clic para cambiar el logo del club">
+                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-gold-500 shadow-md bg-vinotinto-700 flex items-center justify-center">
+                        <img id="appLogoDisplay" src="https://i.ibb.co/5X97C0z/IMG-0834.png" alt="Logo" class="w-full h-full object-cover">
+                    </div>
+                    <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-[9px] text-gold-400 font-bold uppercase">Editar</div>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-wider text-gold-500 flex items-center">
+                        MMA TOLIMA <span id="estadoAdminBadge" class="ml-2 px-2 py-0.5 bg-slate-800 text-slate-400 text-[10px] rounded-full border border-slate-700"><i class="fa-solid fa-user mr-1"></i> Modo Usuario / Atleta</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Head Coach: Mauro Díaz | Nutrición Clínica de Precisión 8 Semanas</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="solicitarAccesoAdmin()" id="btnAdminToggle" class="bg-slate-800 hover:bg-slate-700 text-gold-400 px-3 py-1.5 rounded-lg text-xs font-bold border border-gold-500/30 cursor-pointer shadow flex items-center">
+                    <i class="fa-solid fa-lock mr-1.5"></i> Acceso Coach
+                </button>
+                <button onclick="exportarBackupJSON()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer shadow flex items-center" title="Respaldo Local">
+                    <i class="fa-solid fa-download mr-1.5"></i> Backup
+                </button>
+                <button onclick="switchTab('tienda')" class="relative bg-gold-500 hover:bg-gold-600 text-vinotinto-900 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center cursor-pointer shadow">
+                    <i class="fa-solid fa-cart-shopping mr-1.5"></i> Carrito <span id="cartBadge" class="ml-1.5 bg-vinotinto-900 text-gold-400 px-1.5 py-0.2 rounded-full text-[10px]">0</span>
+                </button>
+                <button onclick="switchTab('pagos')" class="hidden sm:flex bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs items-center cursor-pointer shadow">
+                    <i class="fa-solid fa-wallet mr-1.5"></i> Nequi 3212266379
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navegación General -->
+    <nav class="bg-vinotinto-700/90 backdrop-blur border-b border-vinotinto-600 shadow sticky top-[65px] z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 flex space-x-2 overflow-x-auto py-2">
+            <button onclick="switchTab('atletas')" id="btn-atletas" class="px-4 py-2 rounded-lg text-sm font-medium bg-gold-500 text-vinotinto-800 shadow transition flex items-center whitespace-nowrap font-bold cursor-pointer"><i class="fa-solid fa-id-card mr-2"></i> Nómina & Carnet QR</button>
+            <button onclick="switchTab('proyeccion')" id="btn-proyeccion" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-vinotinto-600 transition flex items-center whitespace-nowrap cursor-pointer"><i class="fa-solid fa-trophy mr-2"></i> Proyección</button>
+            <button onclick="switchTab('matchmaking')" id="btn-matchmaking" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-vinotinto-600 transition flex items-center whitespace-nowrap cursor-pointer"><i class="fa-solid fa-medal mr-2"></i> Salón de la Fama</button>
+            <button onclick="switchTab('medica')" id="btn-medica" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-vinotinto-600 transition flex items-center whitespace-nowrap cursor-pointer"><i class="fa-solid fa-stethoscope mr-2"></i> Zona Médica Pro</button>
+            <button onclick="switchTab('homework')" id="btn-homework" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-vinotinto-600 transition flex items-center whitespace-nowrap cursor-pointer"><i class="fa-solid fa-graduation-cap mr-2"></i> Lab Post-Doctoral</button>
+            <button onclick="switchTab('nutricion')" id="btn-nutricion" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-vinotinto-600 transition flex items-center whitespace-nowrap cursor-pointer"><i class="fa-solid fa-utensils mr-2"></i> Nutrición & Campamento</button>
+            <button onclick="switchTab('registro')" id="btn-registro" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-vinotinto-600 transition flex items-center whitespace-nowrap cursor-pointer"><i class="fa-solid fa-user-plus mr-2"></i> Inscripción Atleta</button>
+            <button onclick="switchTab('tienda')" id="btn-tienda" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-vinotinto-600 transition flex items-center whitespace-nowrap cursor-pointer"><i class="fa-solid fa-store mr-2"></i> Pro-Shop</button>
+            <button onclick="switchTab('patrocinadores')" id="btn-patrocinadores" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-vinotinto-600 transition flex items-center whitespace-nowrap cursor-pointer"><i class="fa-solid fa-handshake mr-2"></i> Patrocinadores</button>
+            <button onclick="switchTab('pagos')" id="btn-pagos" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-vinotinto-600 transition flex items-center whitespace-nowrap cursor-pointer"><i class="fa-solid fa-wallet mr-2"></i> Caja & Pagos</button>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 space-y-8">
+
+        <!-- 1. VISTA: ATLETAS -->
+        <section id="tab-atletas" class="space-y-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-100">Nómina General & Control Federado</h2>
+                    <p class="text-xs text-slate-400">Atletas registrados, control de mensualidades con cobro WhatsApp y carnets QR oficiales</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <input type="text" id="searchInput" oninput="renderAtletas()" placeholder="Buscar atleta..." class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 w-44">
+                    <select id="filtroDisciplina" onchange="renderAtletas()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">
+                        <option value="">Todas las Disciplinas</option>
+                        <option value="Muay Thai">Muay Thai</option>
+                        <option value="Artes Marciales Mixtas (MMA)">MMA</option>
+                        <option value="Brazilian Jiu-Jitsu (BJJ)">BJJ</option>
+                        <option value="Lucha Olímpica">Lucha Olímpica</option>
+                        <option value="Boxeo">Boxeo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl shadow-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-vinotinto-800 text-gold-500 text-xs uppercase border-b border-slate-800">
+                                <th class="p-3">Atleta</th>
+                                <th class="p-3">Doc / RH / EPS</th>
+                                <th class="p-3">Disciplina & Nivel</th>
+                                <th class="p-3">Vigencia Mensualidad</th>
+                                <th class="p-3 text-center">Carnet QR</th>
+                                <th class="p-3 text-center admin-only hidden">Acciones (Admin)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800 text-sm" id="atletasTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. VISTA: PROYECCIÓN -->
+        <section id="tab-proyeccion" class="hidden space-y-8">
+            <h2 class="text-xl font-bold text-slate-100 flex items-center"><i class="fa-solid fa-trophy text-gold-500 mr-2"></i> Proyección Competitiva</h2>
+            <div id="adminFormProyeccion" class="bg-vinotinto-800/40 border border-gold-500/30 rounded-xl p-6 shadow-xl max-w-3xl mx-auto admin-only hidden">
+                <form id="proyeccionForm" onsubmit="guardarProyeccion(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <select id="proAtletaSelect" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200"></select>
+                        <select id="proDisciplina" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 font-bold text-gold-400">
+                            <option value="Muay Thai">Muay Thai</option>
+                            <option value="Artes Marciales Mixtas (MMA)">MMA</option>
+                            <option value="Brazilian Jiu-Jitsu (BJJ)">BJJ</option>
+                            <option value="Lucha Olímpica">Lucha Olímpica</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <input type="text" id="proCampeonato" required placeholder="Campeonato Objetivo" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">
+                        <select id="proEstatus" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 font-bold">
+                            <option value="En Preparación Fisiológica">🟡 En Preparación Fisiológica</option>
+                            <option value="Seleccionado Oficial (Titular)">🟢 Seleccionado Oficial (Titular)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-gold-500 hover:bg-gold-600 text-vinotinto-800 font-bold py-2.5 rounded-xl text-xs uppercase cursor-pointer">Guardar Proyección</button>
+                </form>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="proyeccionesGrid"></div>
+        </section>
+
+        <!-- 3. VISTA: SALÓN DE LA FAMA -->
+        <section id="tab-matchmaking" class="hidden space-y-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-100 flex items-center"><i class="fa-solid fa-medal text-gold-500 mr-2"></i> Salón de la Fama & Récords</h2>
+                    <p class="text-xs text-slate-400">Historial oficial de medallas, preseas y podios.</p>
+                </div>
+                <button onclick="document.getElementById('modalMedalla').classList.remove('hidden')" class="bg-gold-500 hover:bg-gold-600 text-vinotinto-900 font-bold px-4 py-2.5 rounded-xl text-xs uppercase cursor-pointer admin-only hidden">
+                    <i class="fa-solid fa-plus mr-1"></i> Registrar Medalla
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="salonFamaGrid"></div>
+        </section>
+
+        <!-- 4. VISTA: ZONA MÉDICA PRO -->
+        <section id="tab-medica" class="hidden space-y-8">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 sm:p-8 shadow-xl space-y-6 max-w-5xl mx-auto">
+                <div class="text-center space-y-2">
+                    <span class="px-3 py-1 bg-gold-500/20 text-gold-400 border border-gold-500/30 rounded-full text-xs font-bold uppercase">Área Médica & Fisioterapia Deportiva Avanzada</span>
+                    <h2 class="text-2xl font-bold text-slate-100">Triaje Clínico, Diagnóstico Funcional & Protocolos de Readaptación</h2>
+                    <p class="text-xs text-slate-400">Evaluación milimétrica por zona anatómica, escalas de dolor, criterios de conmoción y pautas de fisioterapia de élite.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-xl space-y-4">
+                        <h3 class="text-sm font-bold text-gold-500 uppercase border-b border-slate-800 pb-2">Triaje Clínico de Ingreso</h3>
+                        <form id="triajeForm" onsubmit="analizarSintomasPro(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Seleccionar Atleta *</label>
+                                <select id="triAtletaSelect" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200"></select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Zona Anatómica Lesionada *</label>
+                                <select id="triZona" onchange="actualizarSintomasPro()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 font-bold">
+                                    <option value="Cabeza / Conmoción">Cabeza / Conmoción Cerebral (TBI leve)</option>
+                                    <option value="Rodilla / Ligamentos">Rodilla (Esguince LCL/LCM o Meniscos)</option>
+                                    <option value="Hombro / Manguito">Hombro (Inestabilidad / Manguito Rotador)</option>
+                                    <option value="Columna / Lumbar">Columna / Lumbalgia Aguda (Espasmo)</option>
+                                    <option value="Tejido Muscular">Tejido Muscular (Desgarro fibrilar / Isquiotibiales)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Signo / Síntoma Principal *</label>
+                                <select id="triSintoma" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200"></select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Escala Numérica de Dolor (EVA: 1 al 10)</label>
+                                <input type="range" id="triIntensidad" min="1" max="10" value="5" class="w-full accent-gold-500" oninput="document.getElementById('valIntensidad').innerText = this.value">
+                                <span class="text-xs text-gold-500 font-bold">Nivel EVA: <span id="valIntensidad">5</span> / 10</span>
+                            </div>
+                            <button type="submit" class="w-full bg-gold-500 hover:bg-gold-600 text-vinotinto-800 font-bold py-3 rounded-xl text-xs uppercase cursor-pointer shadow-lg">
+                                Generar Dictamen Médico & Protocolo Fisioterapéutico
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="bg-slate-950 border border-gold-500/30 rounded-xl p-6 shadow-xl flex flex-col justify-between space-y-4">
+                        <div>
+                            <h3 class="text-sm font-bold text-gold-500 uppercase border-b border-slate-800 pb-2 flex items-center justify-between">
+                                <span>Dictamen Especializado</span>
+                                <span id="badgeAptitud" class="px-2.5 py-0.5 rounded-full text-[10px] bg-slate-900 text-slate-400 font-bold">Sin evaluar</span>
+                            </h3>
+                            <div class="mt-4 text-xs space-y-3 leading-relaxed" id="dictamenContenidoPro">
+                                <p class="text-slate-400 italic">Selecciona el triaje médico a la izquierda para desplegar el protocolo biomecánico, fases de readaptación, crioterapia y criterios de retorno al octágono / ring.</p>
+                            </div>
+                        </div>
+                        <button onclick="window.print()" class="w-full bg-slate-800 hover:bg-slate-700 text-gold-400 font-bold py-2.5 rounded-xl text-xs uppercase cursor-pointer no-print border border-gold-500/30">
+                            <i class="fa-solid fa-print mr-1.5"></i> Imprimir Dictamen Clínico
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. VISTA: LABORATORIO POST-DOCTORAL -->
+        <section id="tab-homework" class="hidden space-y-8">
+            <div class="bg-slate-900 border border-gold-500/30 rounded-xl p-6 sm:p-8 shadow-xl space-y-6 max-w-5xl mx-auto">
+                <div class="text-center space-y-2">
+                    <span class="px-3 py-1 bg-gold-500/20 text-gold-400 border border-gold-500/30 rounded-full text-xs font-bold uppercase">Laboratorio Metodológico Post-Doctoral</span>
+                    <h2 class="text-2xl font-bold text-slate-100">Planificación Científica & Periodización del Entrenamiento de Combate</h2>
+                    <p class="text-xs text-slate-400">Sistemas de entrenamiento basados en evidencia científica para optimizar la fuerza, potencia aláctica, umbrales y defensa técnica.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950 p-6 rounded-xl border border-slate-800">
+                    <div>
+                        <label class="block text-xs font-bold text-gold-400 uppercase mb-1">Nivel Competitivo del Atleta:</label>
+                        <select id="selectNivelAtleta" onchange="actualizarPlanExtraclasePro()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-200 font-bold">
+                            <option value="iniciacion">Iniciación (Semillero & Fundamentos)</option>
+                            <option value="amateur">Amateur (Competencia Departamental)</option>
+                            <option value="semipro">Semiprofesional (Nacional / Open)</option>
+                            <option value="pro">Profesional / Alto Rendimiento (Internacional)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gold-400 uppercase mb-1">Enfoque de Corrección / Mejora Específica:</label>
+                        <select id="selectDeficiencia" onchange="actualizarPlanExtraclasePro()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-200 font-bold">
+                            <option value="fisico">Déficit Aeróbico / Anaeróbico & Resistencia Láctica</option>
+                            <option value="defensa">Vulnerabilidad Defensiva (Bloqueos, Coberturas y Salidas)</option>
+                            <option value="tecnico">Optimización Biomecánica Técnica (Stripping / Wrestling)</option>
+                            <option value="reflejos">Tiempos de Reacción & Agilidad Visio-Motora</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="resultadoPlanExtraclasePro" class="space-y-6 print-container"></div>
+            </div>
+        </section>
+
+        <!-- 6. VISTA: NUTRICIÓN Y CAMPAMENTO PRO -->
+        <section id="tab-nutricion" class="hidden space-y-8">
+            <div class="bg-slate-900 border border-emerald-500/40 rounded-xl p-6 sm:p-8 shadow-xl space-y-6 max-w-6xl mx-auto">
+                <div class="text-center space-y-2">
+                    <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-bold uppercase">Nutrición Clínica de Combate & Control de Peso</span>
+                    <h2 class="text-2xl font-bold text-slate-100">Dosier Nutricional Maestro: 8 Semanas Periodizadas (Mes 1 vs Mes 2) & Minutas de 7 Días</h2>
+                    <p class="text-xs text-slate-400">Planificador con progresión calórica diferenciada, menús específicos para Mes 1 (Base/Fuerza) y Mes 2 (Afinación/Corte), porciones en gramos e ingestas diarias.</p>
+                </div>
+
+                <form id="nutricionForm" onsubmit="generarCampamentoNutricionalPro(event)" class="space-y-4 bg-slate-950 p-6 rounded-xl border border-slate-800">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Seleccionar Atleta *</label>
+                            <select id="nutAtletaSelect" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Régimen / Protocolo de Pesaje *</label>
+                            <select id="nutTipoAtleta" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 font-bold text-gold-400">
+                                <option value="profesional">Profesional (Pesaje 24h antes - Protocolo de Rehidratación Masiva)</option>
+                                <option value="amateur">Amateur (Pesaje el mismo día - Corte Eucalórico Estricto)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Peso Actual (Kg) *</label>
+                            <input type="number" id="nutPesoActual" step="0.1" required placeholder="Ej: 77.5" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Peso en Báscula Objetivo (Kg) *</label>
+                            <input type="number" id="nutPesoObj" step="0.1" required placeholder="Ej: 70.0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Fecha del Combate *</label>
+                            <input type="date" id="nutFechaCombate" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs uppercase cursor-pointer shadow-lg">
+                        <i class="fa-solid fa-file-pdf mr-2"></i> Generar Dosier Nutricional Maestro (Mes 1 y Mes 2 Desglosados)
+                    </button>
+                </form>
+
+                <div id="resultadoCampamentoContainer" class="hidden space-y-6 pt-4 border-t border-slate-800">
+                    <div id="detalleCampamentoNutricional" class="space-y-8 print-container"></div>
+                    <button onclick="window.print()" class="w-full bg-gold-500 hover:bg-gold-600 text-vinotinto-800 font-bold py-3 rounded-xl text-xs uppercase cursor-pointer shadow-lg no-print">
+                        <i class="fa-solid fa-download mr-2"></i> Descargar Dosier Nutricional Maestro (PDF / Imprimir Múltiples Páginas)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. VISTA: INSCRIPCIÓN -->
+        <section id="tab-registro" class="hidden space-y-6 max-w-3xl mx-auto">
+            <div class="bg-slate-900/95 border border-gold-500/60 rounded-xl p-6 sm:p-8 shadow-2xl">
+                <div class="text-center space-y-1 mb-6">
+                    <span class="px-3 py-1 bg-gold-500/20 text-gold-400 border border-gold-500/30 rounded-full text-[10px] font-bold uppercase">Portal Oficial de Ingreso MMA Tolima</span>
+                    <h2 class="text-xl font-bold text-slate-100">Inscripción Oficial de Atletas</h2>
+                    <p class="text-xs text-slate-400">Llena tus datos para quedar registrado instantáneamente en la base de datos oficial del club.</p>
+                </div>
+                <form id="registroForm" onsubmit="registrarPersonaCloud(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Disciplina *</label>
+                            <select id="regDisciplina" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200">
+                                <option value="Muay Thai">Muay Thai</option>
+                                <option value="Artes Marciales Mixtas (MMA)">Artes Marciales Mixtas (MMA)</option>
+                                <option value="Brazilian Jiu-Jitsu (BJJ)">Brazilian Jiu-Jitsu (BJJ)</option>
+                                <option value="Lucha Olímpica">Lucha Olímpica</option>
+                                <option value="Boxeo">Boxeo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Nivel *</label>
+                            <select id="regNivel" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200">
+                                <option value="Iniciación">Iniciación</option>
+                                <option value="Amateur">Amateur</option>
+                                <option value="Semiprofesional">Semiprofesional</option>
+                                <option value="Profesional">Profesional</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Nombre Completo *</label>
+                            <input type="text" id="regNombre" required placeholder="Ej: Juan Pérez" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Tipo Doc *</label>
+                                <select id="regTipoDoc" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-sm text-slate-200"><option value="C.C.">C.C.</option><option value="T.I.">T.I.</option></select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">N° Documento *</label>
+                                <input type="text" id="regDocumento" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-sm text-slate-200">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Fecha Nacimiento *</label>
+                            <input type="date" id="regNacimiento" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Sangre (RH) *</label>
+                            <select id="regRh" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200"><option value="O+">O+</option><option value="A+">A+</option><option value="B+">B+</option><option value="AB+">AB+</option></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">EPS *</label>
+                            <input type="text" id="regEps" required placeholder="Sanitas" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Dirección *</label>
+                            <input type="text" id="regDireccion" required placeholder="Calle 60 # 5-21" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Comuna (Ibagué) *</label>
+                            <select id="regComuna" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200">
+                                <option value="Comuna 3 (Estadio)">Comuna 3 - Estadio</option>
+                                <option value="Comuna 1 (Centro)">Comuna 1 - Centro</option>
+                                <option value="Comuna 2 (Cádiz)">Comuna 2 - Cádiz</option>
+                                <option value="Comuna 6 (Ambalá)">Comuna 6 - Ambalá</option>
+                                <option value="Comuna 7 (Salado)">Comuna 7 - Salado</option>
+                                <option value="Comuna 9 (Picaleña)">Comuna 9 - Picaleña</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Teléfono *</label>
+                            <input type="tel" id="regTelefono" required placeholder="3210000000" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Teléfono Emergencia *</label>
+                            <input type="tel" id="regEmergenciaTel" required placeholder="Familiar" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Inicio Mensualidad *</label>
+                            <input type="date" id="regInicioPago" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Vencimiento Mensualidad *</label>
+                            <input type="date" id="regVencePago" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Foto de Perfil *</label>
+                        <input type="file" id="regFotoFile" accept="image/*" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200 file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold-500 file:text-vinotinto-800 cursor-pointer">
+                    </div>
+                    <button type="submit" class="w-full bg-gold-500 hover:bg-gold-600 text-vinotinto-800 font-bold py-3 rounded-xl text-sm uppercase cursor-pointer shadow-lg">Inscribirme Oficialmente</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 8. VISTA: PRO-SHOP E-COMMERCE -->
+        <section id="tab-tienda" class="hidden space-y-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-100"><i class="fa-solid fa-store text-gold-500 mr-2"></i> Pro-Shop & Suplementos Oficiales</h2>
+                    <p class="text-xs text-slate-400">Indumentaria y equipamiento con carrito interactivo directo a WhatsApp.</p>
+                </div>
+                <button onclick="document.getElementById('modalCarrito').classList.remove('hidden')" class="bg-gold-500 hover:bg-gold-600 text-vinotinto-900 font-bold px-4 py-2.5 rounded-xl text-xs uppercase shadow-lg cursor-pointer">
+                    <i class="fa-solid fa-cart-shopping mr-2"></i> Ver Carrito (<span id="cartCountBtn">0</span>)
+                </button>
+            </div>
+
+            <div id="adminFormProducto" class="bg-vinotinto-800/40 border border-gold-500/30 rounded-xl p-6 shadow-xl admin-only hidden">
+                <h3 class="text-xs font-bold text-gold-400 uppercase mb-3"><i class="fa-solid fa-plus-circle mr-1"></i> Publicar Nuevo Producto en la Tienda</h3>
+                <form id="productoForm" onsubmit="agregarProductoCloud(event)" class="grid grid-cols-1 sm:grid-cols-5 gap-3 items-end">
+                    <input type="text" id="prodNombre" required placeholder="Nombre Producto" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">
+                    <input type="text" id="prodPrecio" required placeholder="Precio ($60.000)" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">
+                    <input type="text" id="prodDesc" required placeholder="Tallas / Descripción" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">
+                    <input type="file" id="prodFotoFile" accept="image/*" required class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200">
+                    <button type="submit" class="bg-gold-500 hover:bg-gold-600 text-vinotinto-900 font-bold py-2 rounded-lg text-xs uppercase cursor-pointer shadow">Publicar</button>
+                </form>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" id="tiendaGrid"></div>
+        </section>
+
+        <!-- 9. VISTA: PATROCINADORES -->
+        <section id="tab-patrocinadores" class="hidden space-y-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-100"><i class="fa-solid fa-handshake text-gold-500 mr-2"></i> Patrocinadores & Alianzas</h2>
+                    <p class="text-xs text-slate-400">Empresas aliadas con canal directo de vinculación.</p>
+                </div>
+                <button onclick="document.getElementById('modalSponsor').classList.remove('hidden')" class="bg-gold-500 hover:bg-gold-600 text-vinotinto-900 font-bold px-4 py-2.5 rounded-xl text-xs uppercase cursor-pointer admin-only hidden">
+                    <i class="fa-solid fa-plus mr-1"></i> Registrar Patrocinador
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6" id="sponsorsGrid"></div>
+        </section>
+
+        <!-- 10. VISTA: CAJA & PAGOS -->
+        <section id="tab-pagos" class="hidden space-y-8 max-w-4xl mx-auto">
+            <div class="bg-slate-900/95 border border-gold-500/40 rounded-xl p-6 sm:p-8 shadow-xl space-y-6 text-center">
+                <div class="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-500 rounded-full flex items-center justify-center mx-auto text-emerald-400 text-2xl">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-100">PANEL DE CAJA & PAGOS (NEQUI / BRE)</h2>
+                <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4 text-left">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <div><p class="text-xs text-slate-400 uppercase">Nequi Oficial:</p><p class="text-lg font-bold text-emerald-400">321 226 6379</p></div>
+                        <button onclick="copiarTexto('3212266379')" class="bg-slate-800 text-gold-500 px-3 py-1.5 rounded-lg text-xs font-bold uppercase cursor-pointer">Copiar</button>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div><p class="text-xs text-slate-400 uppercase">Llave Bre:</p><p class="text-lg font-bold text-gold-500">@3212266379</p></div>
+                        <button onclick="copiarTexto('@3212266379')" class="bg-slate-800 text-gold-500 px-3 py-1.5 rounded-lg text-xs font-bold uppercase cursor-pointer">Copiar Llave</button>
+                    </div>
+                </div>
+
+                <div id="adminFormCaja" class="bg-vinotinto-800/40 border border-gold-500/30 p-5 rounded-xl text-left space-y-3 admin-only hidden">
+                    <h3 class="text-xs font-bold text-gold-400 uppercase"><i class="fa-solid fa-cash-register mr-1"></i> Registrar Ingreso Manual a Caja</h3>
+                    <form onsubmit="registrarIngresoCajaCloud(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                        <input type="text" id="cajaConcepto" required placeholder="Concepto (Ej: Mensualidad)" class="bg-slate-950 border border-slate-700 rounded p-2 text-xs text-slate-200">
+                        <input type="number" id="cajaMonto" required placeholder="Monto ($)" class="bg-slate-950 border border-slate-700 rounded p-2 text-xs text-slate-200">
+                        <select id="cajaTipo" class="bg-slate-950 border border-slate-700 rounded p-2 text-xs text-slate-200 font-bold">
+                            <option value="Mensualidad">Mensualidad</option>
+                            <option value="Venta Pro-Shop">Venta Pro-Shop</option>
+                            <option value="Patrocinio / Evento">Patrocinio / Evento</option>
+                        </select>
+                        <button type="submit" class="bg-gold-500 hover:bg-gold-600 text-vinotinto-900 font-bold py-2 rounded text-xs uppercase cursor-pointer">Registrar</button>
+                    </form>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 text-left space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                        <h3 class="text-xs font-bold text-gold-400 uppercase">Historial de Transacciones</h3>
+                        <span class="text-xs font-bold text-emerald-400" id="totalCajaText">Total Recaudado: $0</span>
+                    </div>
+                    <div id="cajaHistorialContainer" class="divide-y divide-slate-800 max-h-48 overflow-y-auto space-y-2">
+                        <p class="text-xs text-slate-400 italic text-center py-2">No hay transacciones registradas.</p>
+                    </div>
+                </div>
+
+                <a href="https://api.whatsapp.com/send?phone=573212266379&text=Hola%20Mauro,%20adjunto%20comprobante." target="_blank" class="block w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs uppercase shadow-lg">
+                    <i class="fa-brands fa-whatsapp mr-2"></i> Enviar Comprobante WhatsApp
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL CAMBIAR LOGO -->
+    <div id="modalLogo" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-gold-500 rounded-2xl max-w-sm w-full p-6 space-y-4 relative">
+            <button onclick="document.getElementById('modalLogo').classList.add('hidden')" class="absolute top-4 right-4 text-gold-400"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-lg font-bold text-gold-500">Cambiar Logo del Club</h3>
+            <p class="text-xs text-slate-400">Sube una imagen cuadrada (ej: tu escudo personal o de MMA Tolima).</p>
+            <input type="file" id="inputSubirLogo" accept="image/*" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+            <button onclick="guardarNuevoLogo()" class="w-full bg-gold-500 text-vinotinto-900 font-bold py-2.5 rounded-xl text-xs uppercase cursor-pointer">Actualizar Logo</button>
+        </div>
+    </div>
+
+    <!-- MODAL CARRITO -->
+    <div id="modalCarrito" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-gold-500 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 relative">
+            <button onclick="document.getElementById('modalCarrito').classList.add('hidden')" class="absolute top-4 right-4 text-gold-400 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h3 class="text-lg font-bold text-gold-500 flex items-center"><i class="fa-solid fa-bag-shopping mr-2"></i> Carrito Pro-Shop</h3>
+            <div id="cartItemsContainer" class="divide-y divide-slate-800 max-h-64 overflow-y-auto space-y-3 pr-2">
+                <p class="text-xs text-slate-400 italic text-center py-4">Tu carrito está vacío.</p>
+            </div>
+            <div class="border-t border-slate-800 pt-3 flex justify-between items-center">
+                <span class="text-sm font-bold text-slate-300">Total Estimado:</span>
+                <span id="cartTotalText" class="text-lg font-bold text-gold-400">$0</span>
+            </div>
+            <div class="space-y-2 pt-2">
+                <button onclick="enviarPedidoWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs uppercase cursor-pointer shadow-lg flex items-center justify-center">
+                    <i class="fa-brands fa-whatsapp mr-2 text-base"></i> Enviar Pedido por WhatsApp a Mauro Díaz
+                </button>
+                <button onclick="vaciarCarrito()" class="w-full bg-slate-800 hover:bg-slate-700 text-rose-400 font-bold py-2 rounded-xl text-xs uppercase cursor-pointer">Vaciar Carrito</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PATROCINADOR -->
+    <div id="modalSponsor" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-gold-500 rounded-2xl max-w-md w-full p-6 space-y-4 relative">
+            <button onclick="document.getElementById('modalSponsor').classList.add('hidden')" class="absolute top-4 right-4 text-gold-400"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-lg font-bold text-gold-500">Registrar Patrocinador</h3>
+            <form id="sponsorForm" onsubmit="registrarSponsorCloud(event)" class="space-y-3">
+                <input type="text" id="spNombre" required placeholder="Nombre Empresa" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200">
+                <select id="spCategoria" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 font-bold text-gold-400">
+                    <option value="🏆 Patrocinador Oficial - ORO">🏆 Patrocinador Oficial - ORO</option>
+                    <option value="👕 Aliado de Indumentaria">👕 Aliado de Indumentaria</option>
+                    <option value="🍏 Aliado Nutrición">🍏 Aliado Logístico y Nutrición</option>
+                </select>
+                <input type="text" id="spContacto" required placeholder="Representante" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200">
+                <input type="tel" id="spTelefono" required placeholder="WhatsApp" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200">
+                <textarea id="spDescripcion" rows="2" placeholder="Aporte..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200"></textarea>
+                <input type="file" id="spLogoFile" accept="image/*" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+                <button type="submit" class="w-full bg-gold-500 text-vinotinto-900 font-bold py-2.5 rounded-xl text-xs uppercase cursor-pointer">Guardar Patrocinador</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL MEDALLA -->
+    <div id="modalMedalla" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-gold-500 rounded-2xl max-w-md w-full p-6 space-y-4 relative">
+            <button onclick="document.getElementById('modalMedalla').classList.add('hidden')" class="absolute top-4 right-4 text-gold-400"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-lg font-bold text-gold-500">Registrar Título o Medalla</h3>
+            <form id="medallaForm" onsubmit="guardarMedallaCloud(event)" class="space-y-3">
+                <select id="medAtletaSelect" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200"></select>
+                <input type="text" id="medTorneo" required placeholder="Torneo (Ej: Panamericano 2026)" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200">
+                <select id="medTipo" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 font-bold">
+                    <option value="🥇 Medalla de Oro">🥇 Medalla de Oro</option>
+                    <option value="🥈 Medalla de Plata">🥈 Medalla de Plata</option>
+                    <option value="🥉 Medalla de Bronce">🥉 Medalla de Bronce</option>
+                    <option value="🏆 Cinturón Pro">🏆 Cinturón Pro</option>
+                </select>
+                <input type="text" id="medDisciplina" required placeholder="Disciplina" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200">
+                <button type="submit" class="w-full bg-gold-500 text-vinotinto-900 font-bold py-2.5 rounded-xl text-xs uppercase cursor-pointer">Guardar Medalla</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CARNET QR -->
+    <div id="modalQR" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="carnet-impresion bg-gradient-to-b from-vinotinto-800 via-vinotinto-700 to-slate-900 border-2 border-gold-500 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 relative overflow-hidden">
+            <button onclick="document.getElementById('modalQR').classList.add('hidden')" class="absolute top-4 right-4 text-gold-400 hover:text-white cursor-pointer z-10 no-print"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <div class="flex items-center justify-center space-x-2 border-b border-gold-500/30 pb-3 relative z-10">
+                <span class="text-xs font-extrabold text-gold-500 tracking-wider">MMA TOLIMA • CREDENCIAL OFICIAL</span>
+            </div>
+            <div class="relative z-10">
+                <div id="carnetFotoContainer" class="w-28 h-28 rounded-2xl overflow-hidden border-2 border-gold-500 mx-auto shadow-xl bg-vinotinto-900 flex items-center justify-center text-gold-500 text-3xl font-bold">M</div>
+            </div>
+            <div class="relative z-10 space-y-1">
+                <span class="px-3 py-1 rounded-full text-[11px] bg-gold-500 text-vinotinto-900 font-extrabold uppercase shadow" id="carnetDisciplina">Muay Thai</span>
+                <h2 class="text-xl font-bold text-slate-100 mt-2 tracking-wide" id="carnetNombre">Atleta</h2>
+                <p class="text-xs text-slate-300">Doc: <span id="carnetDoc" class="font-semibold">111000</span> | RH: <span id="carnetRh" class="text-gold-400 font-bold">O+</span></p>
+                <p class="text-xs text-gold-400 font-medium">EPS: <span id="carnetEps">Sanitas</span></p>
+            </div>
+            <div class="bg-white p-3 rounded-2xl inline-block mx-auto shadow-lg relative z-10">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=MMA_TOLIMA_FED_OFICIAL" alt="QR" class="w-24 h-24 mx-auto">
+            </div>
+            <button onclick="window.print()" class="w-full bg-gold-500 hover:bg-gold-600 text-vinotinto-900 font-bold py-2.5 rounded-xl text-xs uppercase cursor-pointer shadow-lg relative z-10 no-print">
+                <i class="fa-solid fa-print mr-1.5"></i> Imprimir Credencial
+            </button>
+        </div>
+    </div>
+
+    <!-- Script Definitivo con Sincronización Automática, WhatsApp y Motor Nutricional -->
+    <script>
+        let esAdmin = false;
+        const ADMIN_PIN = "88061071";
+
+        function solicitarAccesoAdmin() {
+            if(esAdmin) {
+                esAdmin = false;
+                const badge = document.getElementById('estadoAdminBadge');
+                const btn = document.getElementById('btnAdminToggle');
+                if(badge) {
+                    badge.className = "ml-2 px-2 py-0.5 bg-slate-800 text-slate-400 text-[10px] rounded-full border border-slate-700";
+                    badge.innerHTML = '<i class="fa-solid fa-user mr-1"></i> Modo Usuario / Atleta';
+                }
+                if(btn) btn.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i> Acceso Coach';
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+                alert("Sesión de administrador cerrada.");
+                renderAtletas(); renderTienda();
+                return;
+            }
+
+            const pin = prompt("Introduce tu PIN de Head Coach (Administrador):");
+            if(pin === ADMIN_PIN) {
+                esAdmin = true;
+                const badge = document.getElementById('estadoAdminBadge');
+                const btn = document.getElementById('btnAdminToggle');
+                if(badge) {
+                    badge.className = "ml-2 px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] rounded-full border border-emerald-500/40";
+                    badge.innerHTML = '<i class="fa-solid fa-shield-halved mr-1"></i> Head Coach (Admin)';
+                }
+                if(btn) btn.innerHTML = '<i class="fa-solid fa-lock-open mr-1.5"></i> Salir de Admin';
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                alert("¡Acceso de Administrador concedido con éxito, Mauro!");
+                renderAtletas(); renderTienda();
+            } else if(pin !== null) {
+                alert("PIN incorrecto. Acceso denegado.");
+            }
+        }
+
+        // --- LOGO PERSONALIZADO ---
+        let customLogo = localStorage.getItem('mmatolima_custom_logo') || "https://i.ibb.co/5X97C0z/IMG-0834.png";
+        function cambiarLogoApp() {
+            document.getElementById('modalLogo').classList.remove('hidden');
+        }
+        function guardarNuevoLogo() {
+            const file = document.getElementById('inputSubirLogo').files[0];
+            if(!file) { alert("Selecciona una imagen."); return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                customLogo = e.target.result;
+                localStorage.setItem('mmatolima_custom_logo', customLogo);
+                document.getElementById('appLogoDisplay').src = customLogo;
+                document.getElementById('modalLogo').classList.add('hidden');
+                alert("¡Logo del club actualizado con éxito!");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        let personas = JSON.parse(localStorage.getItem('mmatolima_v5_personas')) || [
+            { id: 1, nombre: "Andrés Felipe Padilla", disciplina: "Muay Thai", nivel: "Profesional", documento: "1110472600", rh: "O+", eps: "Sanitas", comuna: "Comuna 3", telefono: "3212266379", inicioPago: "2026-11-01", vencePago: "2026-12-01", foto: "" },
+            { id: 2, nombre: "Karen Valdés", disciplina: "Muay Thai", nivel: "Semiprofesional", documento: "1110472601", rh: "A+", eps: "Nueva EPS", comuna: "Comuna 2", telefono: "3210000001", inicioPago: "2026-11-01", vencePago: "2026-12-01", foto: "" },
+            { id: 3, nombre: "Daniela Leal", disciplina: "Artes Marciales Mixtas (MMA)", nivel: "Amateur", documento: "1110472602", rh: "B+", eps: "Sanitas", comuna: "Comuna 6", telefono: "3210000002", inicioPago: "2026-10-15", vencePago: "2026-11-15", foto: "" }
+        ];
+        let proyecciones = JSON.parse(localStorage.getItem('mmatolima_v5_proyecciones')) || [];
+        let productos = JSON.parse(localStorage.getItem('mmatolima_v5_productos')) || [
+            { id: 101, nombre: "Camiseta Oficial Vinotinto y Oro", precio: "$60.000", desc: "Tallas S, M, L, XL", foto: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=60" }
+        ];
+        let sponsors = JSON.parse(localStorage.getItem('mmatolima_v5_sponsors')) || [];
+        let salonFama = JSON.parse(localStorage.getItem('mmatolima_v5_salon')) || [
+            { id: 1, nombre: "Andrés Felipe Padilla", torneo: "Panamericano de Muay Thai 2026", tipo: "🥇 Medalla de Oro", disciplina: "Muay Thai" }
+        ];
+        let transaccionesCaja = JSON.parse(localStorage.getItem('mmatolima_v5_caja')) || [];
+        let carrito = JSON.parse(localStorage.getItem('mmatolima_v5_carrito')) || [];
+
+        function saveDataLocal() {
+            localStorage.setItem('mmatolima_v5_personas', JSON.stringify(personas));
+            localStorage.setItem('mmatolima_v5_proyecciones', JSON.stringify(proyecciones));
+            localStorage.setItem('mmatolima_v5_productos', JSON.stringify(productos));
+            localStorage.setItem('mmatolima_v5_sponsors', JSON.stringify(sponsors));
+            localStorage.setItem('mmatolima_v5_salon', JSON.stringify(salonFama));
+            localStorage.setItem('mmatolima_v5_caja', JSON.stringify(transaccionesCaja));
+            localStorage.setItem('mmatolima_v5_carrito', JSON.stringify(carrito));
+            actualizarContadorCarrito();
+            renderCaja();
+        }
+
+        function exportarBackupJSON() {
+            const backupData = { personas, proyecciones, productos, sponsors, salonFama, transaccionesCaja, carrito };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `MMA_Tolima_Backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+            alert("¡Respaldo JSON descargado!");
+        }
+
+        function switchTab(tab) {
+            const tabs = ['atletas', 'proyeccion', 'matchmaking', 'medica', 'homework', 'nutricion', 'registro', 'tienda', 'patrocinadores', 'pagos'];
+            tabs.forEach(t => {
+                const sec = document.getElementById(`tab-${t}`);
+                const btn = document.getElementById(`btn-${t}`);
+                if(sec) sec.classList.add('hidden');
+                if(btn) btn.className = "px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-vinotinto-600 transition flex items-center whitespace-nowrap cursor-pointer";
+            });
+            const activeSec = document.getElementById(`tab-${tab}`);
+            const activeBtn = document.getElementById(`btn-${tab}`);
+            if(activeSec) activeSec.classList.remove('hidden');
+            if(activeBtn) activeBtn.className = "px-4 py-2 rounded-lg text-sm font-medium bg-gold-500 text-vinotinto-800 shadow transition flex items-center whitespace-nowrap font-bold cursor-pointer";
+
+            if(tab === 'atletas') renderAtletas();
+            if(tab === 'proyeccion') renderProyecciones();
+            if(tab === 'matchmaking') renderSalonFama();
+            if(tab === 'medica') renderZonaMedicaSelect();
+            if(tab === 'homework') actualizarPlanExtraclasePro();
+            if(tab === 'nutricion') renderNutricionSelect();
+            if(tab === 'tienda') renderTienda();
+            if(tab === 'patrocinadores') renderSponsors();
+            if(tab === 'pagos') renderCaja();
+        }
+
+        function copiarTexto(txt) { navigator.clipboard.writeText(txt); alert(`¡Copiado: ${txt}!`); }
+
+        function abrirModalQR(id) {
+            const a = personas.find(p => p.id === id);
+            if(a) {
+                document.getElementById('carnetNombre').innerText = a.nombre;
+                document.getElementById('carnetDisciplina').innerText = a.disciplina;
+                document.getElementById('carnetDoc').innerText = a.documento;
+                document.getElementById('carnetRh').innerText = a.rh;
+                document.getElementById('carnetEps').innerText = a.eps;
+                const fotoCont = document.getElementById('carnetFotoContainer');
+                if(a.foto) fotoCont.innerHTML = `<img src="${a.foto}" class="w-full h-full object-cover">`;
+                else fotoCont.innerText = a.nombre.charAt(0);
+                document.getElementById('modalQR').classList.remove('hidden');
+            }
+        }
+
+        function renderAtletas() {
+            const tbody = document.getElementById('atletasTableBody');
+            if(!tbody) return; tbody.innerHTML = "";
+            const txt = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : "";
+            const disc = document.getElementById('filtroDisciplina') ? document.getElementById('filtroDisciplina').value : "";
+
+            const filtrados = personas.filter(p => p.nombre.toLowerCase().includes(txt) && (disc === "" || p.disciplina === disc));
+            if(filtrados.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs text-slate-400">No hay atletas registrados.</td></tr>`; return; }
+
+            const hoy = new Date();
+            filtrados.forEach(a => {
+                const fotoHtml = a.foto ? `<img src="${a.foto}" class="w-9 h-9 rounded-full object-cover border border-gold-500">` : `<div class="w-9 h-9 rounded-full bg-vinotinto-800 text-gold-500 font-bold flex items-center justify-center text-xs">${a.nombre.charAt(0)}</div>`;
+                let badgeVencimiento = `<span class="text-emerald-400 font-bold">Activo</span>`;
+                let btnWhatsAppAlerta = "";
+
+                if(a.vencePago) {
+                    const diff = Math.ceil((new Date(a.vencePago) - hoy) / (1000 * 60 * 60 * 24));
+                    if(diff < 0) {
+                        badgeVencimiento = `<span class="text-rose-500 font-bold">Vencido (${Math.abs(diff)}d)</span>`;
+                        btnWhatsAppAlerta = `<a href="https://api.whatsapp.com/send?phone=57${a.telefono}&text=Hola%20${a.nombre},%20tu%20mensualidad%20venció.%20Por%20favor%20realiza%20tu%20pago%20vía%20Nequi%203212266379." target="_blank" class="bg-rose-600 text-white px-2 py-1 rounded text-[11px] font-bold block mt-1 text-center"><i class="fa-brands fa-whatsapp"></i> Cobrar</a>`;
+                    }
+                }
+
+                let colAccionesAdmin = esAdmin ? `<td class="p-3 text-center"><button onclick="eliminarAtleta(${a.id})" class="bg-rose-600 text-white px-2.5 py-1.5 rounded text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>` : ``;
+
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-800 text-sm hover:bg-slate-900/50">
+                        <td class="p-3"><div class="flex items-center space-x-3">${fotoHtml}<span class="font-medium text-slate-200">${a.nombre}</span></div></td>
+                        <td class="p-3 text-xs text-slate-300">Doc: ${a.documento} | <span class="text-gold-400">RH: ${a.rh}</span></td>
+                        <td class="p-3 text-xs text-slate-300"><strong class="text-gold-500">${a.disciplina}</strong><br>${a.nivel}</td>
+                        <td class="p-3 text-xs">${badgeVencimiento}<span class="text-[10px] text-slate-400 block">Vence: ${a.vencePago || 'N/A'}</span>${btnWhatsAppAlerta}</td>
+                        <td class="p-3 text-center"><button onclick="abrirModalQR(${a.id})" class="bg-gold-500 text-vinotinto-900 px-3 py-1.5 rounded text-xs font-bold cursor-pointer shadow">Ver QR</button></td>
+                        ${colAccionesAdmin}
+                    </tr>
+                `;
+            });
+        }
+
+        // --- REGISTRO CON ENVÍO AUTOMÁTICO A GOOGLE SHEETS EN LA NUBE ---
+        function registrarPersonaCloud(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('regFotoFile');
+            const file = fileInput.files[0];
+            const nombre = document.getElementById('regNombre').value;
+            const disciplina = document.getElementById('regDisciplina').value;
+            const nivel = document.getElementById('regNivel').value;
+            const documento = document.getElementById('regDocumento').value;
+            const telefono = document.getElementById('regTelefono').value;
+
+            const procesarRegistro = (compressedData) => {
+                const nuevoAtleta = {
+                    id: Date.now(),
+                    disciplina,
+                    nivel,
+                    nombre,
+                    documento,
+                    rh: document.getElementById('regRh').value,
+                    eps: document.getElementById('regEps').value,
+                    comuna: document.getElementById('regComuna').value,
+                    telefono,
+                    inicioPago: document.getElementById('regInicioPago').value,
+                    vencePago: document.getElementById('regVencePago').value,
+                    foto: compressedData
+                };
+
+                // URL OFICIAL DE TU GOOGLE SHEETS EN LA NUBE
+                const urlGoogleSheet = "https://script.google.com/macros/s/AKfycbzkuhbm95NN3WZufP866DBU_EsB8RMojfM51E-dlpAiwAvkWFwXPdeFUUTwG4aU0JLr/exec";
+
+                fetch(urlGoogleSheet, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevoAtleta)
+                })
+                .then(() => {
+                    personas.push(nuevoAtleta);
+                    saveDataLocal();
+                    alert("¡Inscripción exitosa guardada en la nube y en el sistema!");
+                    document.getElementById('registroForm').reset();
+                    switchTab('atletas');
+                })
+                .catch(err => {
+                    console.error("Error de sincronización:", err);
+                    personas.push(nuevoAtleta);
+                    saveDataLocal();
+                    alert("Inscripción guardada localmente.");
+                    document.getElementById('registroForm').reset();
+                    switchTab('atletas');
+                });
+            };
+
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(u) {
+                    const img = new Image();
+                    img.src = u.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = 300; canvas.height = 300 * (img.height / img.width);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        procesarRegistro(canvas.toDataURL('image/jpeg', 0.8));
+                    };
+                };
+                reader.readAsDataURL(file);
+            } else {
+                procesarRegistro("");
+            }
+        }
+
+        function eliminarAtleta(id) {
+            if(!esAdmin) { alert("Acceso restringido. Solo el Head Coach puede eliminar registros."); return; }
+            if(confirm("¿Estás seguro de eliminar este atleta de la nómina?")) {
+                personas = personas.filter(p => p.id !== id);
+                saveDataLocal(); renderAtletas();
+            }
+        }
+
+        function registrarIngresoCajaCloud(e) {
+            e.preventDefault();
+            if(!esAdmin) return;
+            transaccionesCaja.push({ id: Date.now(), concepto: document.getElementById('cajaConcepto').value, monto: parseFloat(document.getElementById('cajaMonto').value) || 0, tipo: document.getElementById('cajaTipo').value, fecha: new Date().toLocaleDateString() });
+            saveDataLocal(); document.getElementById('cajaConcepto').value = ""; document.getElementById('cajaMonto').value = ""; alert("¡Ingreso registrado en caja!");
+        }
+
+        function renderCaja() {
+            const container = document.getElementById('cajaHistorialContainer');
+            if(!container) return;
+            if(transaccionesCaja.length === 0) { container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-2">Sin transacciones.</p>`; document.getElementById('totalCajaText').innerText = "Total: $0"; return; }
+            container.innerHTML = ""; let total = 0;
+            transaccionesCaja.forEach(t => {
+                total += t.monto;
+                container.innerHTML += `<div class="py-2 flex justify-between items-center text-xs"><div><span class="text-gold-400 font-bold block">${t.concepto}</span><span class="text-[10px] text-slate-400">${t.tipo} | ${t.fecha}</span></div><span class="font-bold text-emerald-400">+$${t.monto.toLocaleString('es-CO')}</span></div>`;
+            });
+            document.getElementById('totalCajaText').innerText = `Total Recaudado: $${total.toLocaleString('es-CO')}`;
+        }
+
+        function agregarProductoCloud(e) {
+            e.preventDefault();
+            if(!esAdmin) return;
+            const file = document.getElementById('prodFotoFile').files[0];
+            const reader = new FileReader();
+            reader.onload = function(u) {
+                productos.push({ id: Date.now(), nombre: document.getElementById('prodNombre').value, precio: document.getElementById('prodPrecio').value, desc: document.getElementById('prodDesc').value, foto: u.target.result });
+                saveDataLocal(); document.getElementById('productoForm').reset(); renderTienda(); alert("¡Producto publicado en el Pro-Shop!");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function eliminarProducto(id) {
+            if(!esAdmin) { alert("Acceso restringido. Solo el Head Coach puede eliminar productos."); return; }
+            if(confirm("¿Estás seguro de eliminar este producto del Pro-Shop?")) {
+                productos = productos.filter(p => p.id !== id);
+                saveDataLocal(); renderTienda();
+            }
+        }
+
+        function renderTienda() {
+            const grid = document.getElementById('tiendaGrid');
+            if(!grid) return; grid.innerHTML = "";
+            productos.forEach(p => {
+                let btnEliminarAdmin = esAdmin ? `<button onclick="eliminarProducto(${p.id})" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-1.5 rounded-lg text-xs uppercase cursor-pointer mt-2"><i class="fa-solid fa-trash mr-1"></i> Eliminar Producto</button>` : ``;
+                grid.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div class="h-40 overflow-hidden bg-slate-950"><img src="${p.foto}" class="w-full h-full object-cover"></div>
+                            <div class="p-4 space-y-1"><h4 class="font-bold text-slate-100 text-sm">${p.nombre}</h4><p class="text-xs text-slate-400">${p.desc}</p><p class="text-gold-400 font-bold pt-1">${p.precio}</p></div>
+                        </div>
+                        <div class="p-4 pt-0">
+                            <button onclick="agregarAlCarrito(${p.id})" class="w-full bg-gold-500 hover:bg-gold-600 text-vinotinto-900 font-bold py-2 rounded-lg text-xs uppercase cursor-pointer">Añadir al Carrito</button>
+                            ${btnEliminarAdmin}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function agregarAlCarrito(id) {
+            const prod = productos.find(p => p.id === id);
+            if(prod) {
+                const item = carrito.find(i => i.id === id);
+                if(item) item.cantidad++; else carrito.push({ ...prod, cantidad: 1 });
+                saveDataLocal(); renderCarritoModal(); alert(`¡"${prod.nombre}" añadido al carrito!`);
+            }
+        }
+
+        function actualizarContadorCarrito() {
+            const total = carrito.reduce((sum, i) => sum + i.cantidad, 0);
+            if(document.getElementById('cartBadge')) document.getElementById('cartBadge').innerText = total;
+            if(document.getElementById('cartCountBtn')) document.getElementById('cartCountBtn').innerText = total;
+        }
+
+        function renderCarritoModal() {
+            const container = document.getElementById('cartItemsContainer');
+            if(!container) return;
+            if(carrito.length === 0) { container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">Carrito vacío.</p>`; document.getElementById('cartTotalText').innerText = "$0"; return; }
+            container.innerHTML = ""; let total = 0;
+            carrito.forEach(item => {
+                let pNum = parseFloat(item.precio.replace('$', '').replace(/\./g, '')) || 0;
+                total += pNum * item.cantidad;
+                container.innerHTML += `<div class="py-2 flex justify-between items-center text-xs"><span>${item.nombre} (x${item.cantidad})</span><span class="text-gold-400 font-bold">$${(pNum*item.cantidad).toLocaleString('es-CO')}</span></div>`;
+            });
+            document.getElementById('cartTotalText').innerText = `$${total.toLocaleString('es-CO')}`;
+        }
+
+        function enviarPedidoWhatsApp() {
+            if(carrito.length === 0) { alert("Carrito vacío."); return; }
+            let msg = "¡Hola Mauro! 👋 Deseo realizar este pedido en MMA Tolima:\n\n";
+            let total = 0;
+            carrito.forEach((i, idx) => {
+                let pNum = parseFloat(i.precio.replace('$', '').replace(/\./g, '')) || 0;
+                total += pNum * i.cantidad;
+                msg += `${idx+1}. *${i.nombre}* x${i.cantidad} - Subtotal: $${(pNum*i.cantidad).toLocaleString('es-CO')}\n`;
+            });
+            msg += `\n*TOTAL: $${total.toLocaleString('es-CO')}*\n\nQuedo atento para pago Nequi/Bre. ¡Oss!`;
+            window.open(`https://api.whatsapp.com/send?phone=573212266379&text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function vaciarCarrito() { carrito = []; saveDataLocal(); renderCarritoModal(); }
+
+        function registrarSponsorCloud(e) {
+            e.preventDefault();
+            if(!esAdmin) return;
+            const file = document.getElementById('spLogoFile').files[0];
+            const reader = new FileReader();
+            reader.onload = function(u) {
+                sponsors.push({ id: Date.now(), nombre: document.getElementById('spNombre').value, categoria: document.getElementById('spCategoria').value, contacto: document.getElementById('spContacto').value, telefono: document.getElementById('spTelefono').value, desc: document.getElementById('spDescripcion').value, logo: u.target.result });
+                saveDataLocal(); document.getElementById('sponsorForm').reset(); document.getElementById('modalSponsor').classList.add('hidden'); renderSponsors(); alert("¡Patrocinador guardado!");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderSponsors() {
+            const grid = document.getElementById('sponsorsGrid');
+            if(!grid) return; grid.innerHTML = "";
+            sponsors.forEach(s => {
+                grid.innerHTML += `<div class="bg-slate-900 border border-gold-500/40 rounded-2xl p-6 shadow-xl space-y-3"><h3 class="font-bold text-slate-100 text-base">${s.nombre}</h3><p class="text-xs text-gold-400">${s.categoria}</p><p class="text-xs text-slate-300">Contacto: ${s.contacto} (${s.telefono})</p></div>`;
+            });
+        }
+
+        function guardarMedallaCloud(e) {
+            e.preventDefault();
+            if(!esAdmin) return;
+            const aId = document.getElementById('medAtletaSelect').value;
+            const a = personas.find(p => p.id == aId);
+            salonFama.push({ id: Date.now(), nombre: a ? a.nombre : 'Atleta', torneo: document.getElementById('medTorneo').value, tipo: document.getElementById('medTipo').value, disciplina: document.getElementById('medDisciplina').value });
+            saveDataLocal(); document.getElementById('medallaForm').reset(); document.getElementById('modalMedalla').classList.add('hidden'); renderSalonFama(); alert("¡Medalla registrada!");
+        }
+
+        function renderSalonFama() {
+            const select = document.getElementById('medAtletaSelect');
+            if(select) { select.innerHTML = ""; personas.forEach(a => { select.innerHTML += `<option value="${a.id}">${a.nombre}</option>`; }); }
+            const grid = document.getElementById('salonFamaGrid');
+            if(!grid) return; grid.innerHTML = "";
+            salonFama.forEach(m => {
+                grid.innerHTML += `<div class="bg-slate-900 border border-gold-500/50 rounded-2xl p-6 shadow-xl space-y-2"><span class="px-2 py-0.5 rounded text-[10px] bg-gold-500 text-vinotinto-900 font-bold uppercase">${m.tipo}</span><h3 class="text-lg font-bold text-slate-100">${m.nombre}</h3><p class="text-xs text-slate-300">${m.torneo}</p></div>`;
+            });
+        }
+
+        function renderZonaMedicaSelect() {
+            const select = document.getElementById('triAtletaSelect');
+            if(!select) return; select.innerHTML = "";
+            personas.forEach(a => { select.innerHTML += `<option value="${a.id}">${a.nombre} (${a.disciplina})</option>`; });
+            actualizarSintomasPro();
+        }
+
+        const diccionarioClinicoPro = {
+            "Cabeza / Conmoción": {
+                sintomas: ["Cefalea post-impacto y fotofobia", "Mareo, tinnitus o desorientación temporal", "Déficit transitorio de memoria y reflejos"],
+                protocoloAltisimo: "🛑 PROTOCOLO ESTRICTO DE CONMOCIÓN (Concussion Protocol - Consensus Statement Berlin). Reposo cognitivo y físico absoluto por 7-14 días. Cero pantallas, cero sparring. Evaluación neurocognitiva obligatoria y retorno gradual en 6 fases supervisado por médico deportólogo."
+            },
+            "Rodilla / Ligamentos": {
+                sintomas: ["Inestabilidad articular en pivote (LCL/LCM)", "Dolor agudo en interlínea articular (Meniscos)", "Hemartrosis y bloqueo mecánico a la flexión"],
+                protocoloAltisimo: "🟡 FISIOTERAPIAS Y READAPTACIÓN BIOMECÁNICA. Crioterapia intermitente (20 min c/4h), electroanalgesia TENS, movilización pasiva sin carga en rangos seguros. Trabajo de cadena cinética cerrada en piscina o bicicleta estática sin resistencia a partir de la semana 3."
+            },
+            "Hombro / Manguito": {
+                sintomas: ["Arco doloroso entre 60° y 120° de abducción", "Sensación de subluxación en ganchos / hooks", "Tendinitis del supraespinoso / bursitis subacromial"],
+                protocoloAltisimo: "🟡 DESCOMPRESIÓN Y FORTALECIMIENTO ESCAPULAR. Ultrasonido terapéutico continuo, liberación miofascial del pectoral menor y deltoides. Ejercicios excéntricos con banda elástica y estabilización glenohumeral con patrón PNF."
+            },
+            "Columna / Lumbar": {
+                sintomas: ["Espasmo paravertebral bilateral agudo", "Limitación severa a la flexo-extensión del tronco", "Irradiación ciática pseudorradicular por hipertono"],
+                protocoloAltisimo: "🟡 DESCOMPRESIÓN VERTEBRAL & CORE PROFUNDO. Termoterapia superficial, estiramientos analíticos de cadena posterior e isquiotibiales. Activación del transverso abdominal y planchas isométricas progresivas sin carga axial."
+            },
+            "Tejido Muscular": {
+                sintomas: ["Dolor punzante localizado (Desgarro fibrilar Grado I/II)", "Hematoma intramuscular y edema evidente", "Imposibilidad para la contracción isométrica contra resistencia"],
+                protocoloAltisimo: "🟢 PROTOCOLO RICE MODIFICADO + REGENERACIÓN MIOFASCIAL. Masaje descontracturante periférico (evitando la lesión directa las primeras 72h), aplicación de ondas de choque o láser de baja potencia y reintroducción de pliometría suave en fase tardía."
+            }
+        };
+
+        function actualizarSintomasPro() {
+            const zona = document.getElementById('triZona').value;
+            const sel = document.getElementById('triSintoma');
+            if(!sel) return; sel.innerHTML = "";
+            const datos = diccionarioClinicoPro[zona] || { sintomas: [] };
+            datos.sintomas.forEach(s => { sel.innerHTML += `<option value="${s}">${s}</option>`; });
+        }
+
+        function analizarSintomasPro(e) {
+            e.preventDefault();
+            const zona = document.getElementById('triZona').value;
+            const dolor = parseInt(document.getElementById('triIntensidad').value);
+            const badge = document.getElementById('badgeAptitud');
+            const cont = document.getElementById('dictamenContenidoPro');
+            const datosClinicos = diccionarioClinicoPro[zona];
+
+            if(dolor >= 8 || zona === "Cabeza / Conmoción") {
+                badge.className = "px-2.5 py-0.5 rounded-full text-[10px] uppercase bg-rose-500/20 text-rose-400 border border-rose-500/40 font-bold";
+                badge.innerText = "🛑 REPOSO ABSOLUTO & REMISIÓN EPS";
+                cont.innerHTML = `
+                    <p class="text-rose-400 font-bold text-sm">Alerta Crítica / Trauma Severo en ${zona} (EVA: ${dolor}/10).</p>
+                    <p class="text-slate-300 mt-1">${datosClinicos.protocoloAltisimo}</p>
+                    <div class="bg-vinotinto-900/60 p-3 rounded-lg border border-rose-500/30 mt-2 text-slate-300">
+                        <strong>Indicación del Médico Deportólogo:</strong> Inmovilización preventiva, derivación a resonancia magnética (RM) si persiste el edema y suspensión total de entrenamientos de contacto hasta nuevo aviso médico.
+                    </div>
+                `;
+            } else if(dolor >= 5) {
+                badge.className = "px-2.5 py-0.5 rounded-full text-[10px] uppercase bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold";
+                badge.innerText = "🟡 APTO CON RESTRICCIÓN TÉCNICA";
+                cont.innerHTML = `
+                    <p class="text-amber-400 font-bold text-sm">Lesión Moderada en ${zona} (EVA: ${dolor}/10).</p>
+                    <p class="text-slate-300 mt-1">${datosClinicos.protocoloAltisimo}</p>
+                    <div class="bg-vinotinto-900/60 p-3 rounded-lg border border-amber-500/30 mt-2 text-slate-300">
+                        <strong>Plan Fisioterapéutico:</strong> Sesiones diarias de fisioterapia de 45 minutos. Permitido trabajo técnico de sombra y manoplas sin oposición ni impacto en la zona afectada.
+                    </div>
+                `;
+            } else {
+                badge.className = "px-2.5 py-0.5 rounded-full text-[10px] uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold";
+                badge.innerText = "🟢 APTO CON PRECAUCIÓN";
+                cont.innerHTML = `
+                    <p class="text-emerald-400 font-bold text-sm">Molestia Leve / Sobrecarga en ${zona} (EVA: ${dolor}/10).</p>
+                    <p class="text-slate-300 mt-1">${datosClinicos.protocoloAltisimo}</p>
+                    <div class="bg-vinotinto-900/60 p-3 rounded-lg border border-emerald-500/30 mt-2 text-slate-300">
+                        <strong>Recomendación del Staff:</strong> Aplicación de crioterapia post-entrenamiento, estiramientos guiados y vendaje funcional preventivo.
+                    </div>
+                `;
+            }
+        }
+
+        const bancoPlanesPostDocCientifico = {
+            iniciacion: {
+                fisico: {
+                    nombre: "Desarrollo de Bases Condicionales y Coordinación Neuromotriz",
+                    duracion: "4 Semanas (Fase de Base)",
+                    series: "3 Series x 12 Repeticiones / 60s descanso",
+                    rutina: [
+                        "Carrera continua aeróbica Z2 (15 min) para adaptación cardiovascular.",
+                        "Planchas isométricas abdominales y lumbares (4 x 45 segundos).",
+                        "Desplazamientos técnicos de guardia en suelo y bipedestación sin carga.",
+                        "Ejercicios de propiocepción en bosu para estabilidad de tobillos y rodillas."
+                    ]
+                },
+                defensa: {
+                    nombre: "Automatización de Coberturas y Bloqueos Básicos",
+                    duracion: "4 Semanas",
+                    series: "4 Series x 2 Minutos de Sombra Dirigida",
+                    rutina: [
+                        "Bloqueo circular de pierna exterior e interior con antebrazo.",
+                        "Absorción de jabs y rectos con doble guante y postura compacta.",
+                        "Salidas laterales en ángulo de 45 grados tras recibir presión en la reja.",
+                        "Fundamentos de sprawl defensivo contra intentos de derribo a una pierna."
+                    ]
+                },
+                tecnico: {
+                    nombre: "Consolidación de Patrones Motrices en Muay Thai y MMA",
+                    duracion: "4 Semanas",
+                    series: "5 Series x 3 Minutos con Manopla y Saco Pesado",
+                    rutina: [
+                        "Pulido de la patada circular (Teep y Kick) buscando altura y cadera.",
+                        "Combinaciones básicas: Jab - Recto - Low Kick con retorno en guardia.",
+                        "Transición fluida de golpeo en pie a clinch de Muay Thai con control de nuca.",
+                        "Iniciación al derribo Single Leg técnico con progresión segura al suelo."
+                    ]
+                },
+                reflejos: {
+                    nombre: "Estímulo Visio-Reactivo y Coordinación Ojo-Mano",
+                    duracion: "4 Semanas",
+                    series: "4 Series x 90 Segundos",
+                    rutina: [
+                        "Esquiva de pelota de reacción colgada a la altura del mentón.",
+                        "Manoplas de estímulo visual (el entrenador indicates números al golpear).",
+                        "Reacciones explosivas al sonido del silbato para sprawl inmediato.",
+                        "Juegos de velocidad gestual y fintas en pareja sin contacto pleno."
+                    ]
+                }
+            },
+            amateur: {
+                fisico: {
+                    nombre: "HIIT Intermitente & Umbral de Lactato en Combate",
+                    duracion: "6 Semanas (Fase de Choque)",
+                    series: "Intervalos 30s Trabajo / 30s Pausa (6 Rondas por bloque)",
+                    rutina: [
+                        "Sombra explosiva con mancuernas ligeras a máxima frecuencia cardíaca.",
+                        "Burpees con salto vertical y proyección a la pared.",
+                        "Circuitos de fuerza resistencia con kettlebells (Swings y Clean).",
+                        "Sprints en pendiente (30 metros x 6 repeticiones)."
+                    ]
+                },
+                defensa: {
+                    nombre: "Contraataque y Defensa Activa Bajo Fatiga",
+                    duracion: "6 Semanas",
+                    series: "5 Rondas de 3 Minutos con Oposición Controlada",
+                    rutina: [
+                        "Parry y contra con recto de derecha inmediato tras desviar jab.",
+                        "Slip lateral con gancho de contraataque al hígado.",
+                        "Defensa de derribo contra la reja y salida con codo ascendente.",
+                        "Footwork defensivo circular para evitar encierro en esquinas del ring."
+                    ]
+                },
+                tecnico: {
+                    nombre: "Optimización de Transiciones y Volumen de Golpeo",
+                    duracion: "6 Semanas",
+                    series: "6 Rondas de 3 Minutos (Simulación de Combate Real)",
+                    rutina: [
+                        "Combinaciones de 4 y 5 golpes terminando con patada baja en rotación.",
+                        "Entrada a doble pierna (Double Leg) con velocidad desde finta de golpeo.",
+                        "Defensa de sumisión desde guardia cerrada y transición a control lateral.",
+                        "Uso ofensivo de rodillas y codos en clinch a media distancia."
+                    ]
+                },
+                reflejos: {
+                    nombre: "Agilidad Cognitiva y Toma de Decisiones Bajo Presión",
+                    duracion: "6 Semanas",
+                    series: "4 Series x 2 Minutos",
+                    rutina: [
+                        "Sparring técnico condicionado (atacar solo cuando el rival lance jab).",
+                        "Esquivas agachadas (ducking) ante ráfagas de manoplas rápidas.",
+                        "Cambios de nivel instantáneos a estímulo táctil del preparador.",
+                        "Drills de contraataque a la vista de la seña del coach."
+                    ]
+                }
+            },
+            semipro: {
+                fisico: {
+                    nombre: "Desarrollo de Potencia Aláctica y Fuerza Explosiva",
+                    duracion: "6 Semanas (Fase Específica)",
+                    series: "4 Series x 4 Repeticiones (90% 1RM) / 3 Minutos de pausa",
+                    rutina: [
+                        "Sentadilla búlgara con barra y arranque de potencia (Snatch clean).",
+                        "Lanzamiento de balón medicinal pesado contra pared (Chest throw).",
+                        "Pliometría avanzada con saltos al cajón de 75 cm.",
+                        "Combate simulado con resistencia elástica en las extremidades."
+                    ]
+                },
+                defensa: {
+                    nombre: "Sistemas Defensivos Complejos y Bloqueo Dinámico",
+                    duracion: "6 Semanas",
+                    series: "5 Rondas x 3 Minutos (Sparring de Alta Intensidad)",
+                    rutina: [
+                        "Uso avanzado de la guardia larga (Long guard) en Muay Thai.",
+                        "Zafarse de posiciones de sumisión comprometidas (Guillotina y Mataleón).",
+                        "Control de muñecas (Wrist control) en pie para neutralizar ofensiva rival.",
+                        "Bloqueo y redirección de patadas circulares altas con antebrazo."
+                    ]
+                },
+                tecnico: {
+                    nombre: "Especialización Táctica y Creación de Portales de Salida",
+                    duracion: "6 Semanas",
+                    series: "6 Rondas x 3 Minutos con Análisis Video-Táctico",
+                    rutina: [
+                        "Creación de ángulos de salida tras conectar patada frontal.",
+                        "Gnp (Ground and Pound) desde la montada técnica con control de postura.",
+                        "Sumisiones express desde la espalda (Rear Naked Choke y Armbar).",
+                        "Manejo de la distancia larga con fintas de patada lateral (Side kick)."
+                    ]
+                },
+                reflejos: {
+                    nombre: "Tiempo de Reacción Óptimo y Anticipación Táctica",
+                    duracion: "6 Semanas",
+                    series: "5 Series x 2 Minutos",
+                    rutina: [
+                        "Anticipación al golpeo del rival mediante lectura de micro-movimientos de hombro.",
+                        "Contraataques simultáneos (Simultaneous counter-punching).",
+                        "Drills de bloqueo ciego a estímulo auditivo.",
+                        "Bloqueo de derribos a contra-reloj en menos de 0.4 segundos."
+                    ]
+                }
+            },
+            pro: {
+                fisico: {
+                    nombre: "Periodización Ondulatoria de Alto Rendimiento (Peak Performance)",
+                    duracion: "8 Semanas (Pico Competitivo Internacional)",
+                    series: "Bloques de Fuerza Máxima y Supercompensación Tapering",
+                    rutina: [
+                        "Entrenamiento de fuerza máxima (4x3 al 85% 1RM) en ejercicios multiarticulares.",
+                        "Potencia máxima en sacos pesados con sensores de acelerometría.",
+                        "Sprints de máxima intensidad en cinta con inclinación del 15% (10 segundos x 8 reps).",
+                        "Sesiones de recuperación mitocondrial y baños de contraste térmico."
+                    ]
+                },
+                defensa: {
+                    nombre: "Maestría Defensiva e Ingeniería Táctica de Combate",
+                    duracion: "8 Semanas",
+                    series: "Simulacros de Campeonato (5 Rondas de 5 Minutos)",
+                    rutina: [
+                        "Neutralización milimétrica de las fortalezas del oponente analizado en video.",
+                        "Defensas de derribo de nivel olímpico con contra-proyección (Suplex o Uchi Mata).",
+                        "Gestión perfecta del espacio en el centro del octágono / ring.",
+                        "Resiliencia defensiva extrema en los últimos 30 segundos de cada asalto."
+                    ]
+                },
+                tecnico: {
+                    nombre: "Excelencia Técnica Global & Ejecución Bajo Fatiga Extrema",
+                    duracion: "8 Semanas",
+                    series: "Sparring Táctico con Cambios de Oponente cada 90 Segundos",
+                    rutina: [
+                        "Ejecución quirúrgica de patadas giratorias y codos descendentes (Elbow drop).",
+                        "Transiciones de sumisión encadenadas sin pérdida de posición dominante.",
+                        "Control absoluto del ritmo (Pace control) para desgastar al rival.",
+                        "Estrategias de finalización en los momentos críticos del asalto."
+                    ]
+                },
+                reflejos: {
+                    nombre: "Reflejos de Élite Mundial y Sinapsis Neuromuscular",
+                    duracion: "8 Semanas",
+                    series: "Drills de Alta Complejidad Cognitiva",
+                    rutina: [
+                        "Combate condicionado en espacios reducidos (jaula de 4 metros).",
+                        "Parry avanzado y contraataque con codo en milisegundos.",
+                        "Reacción inmediata a estímulos visuales periféricos impredecibles.",
+                        "Optimización del tiempo de latencia neuromuscular en situaciones de estrés."
+                    ]
+                }
+            }
+        };
+
+        function actualizarPlanExtraclasePro() {
+            const nivel = document.getElementById('selectNivelAtleta').value;
+            const def = document.getElementById('selectDeficiencia').value;
+            const datosNivel = bancoPlanesPostDocCientifico[nivel] || bancoPlanesPostDocCientifico['amateur'];
+            const plan = datosNivel[def] || datosNivel['fisico'];
+            const container = document.getElementById('resultadoPlanExtraclasePro');
+            if(!container) return;
+            container.innerHTML = `
+                <div class="bg-slate-900 border border-gold-500/40 rounded-2xl p-6 shadow-xl space-y-4">
+                    <div class="flex justify-between items-start border-b border-slate-800 pb-3">
+                        <div>
+                            <span class="px-2.5 py-0.5 rounded text-[10px] bg-gold-500 text-vinotinto-900 font-extrabold uppercase">Plan Científico Post-Doc</span>
+                            <h3 class="text-lg font-bold text-slate-100 mt-1">${plan.nombre}</h3>
+                        </div>
+                        <span class="text-xs font-bold text-gold-400 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">${plan.duracion}</span>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-xs font-semibold text-slate-300 uppercase"><i class="fa-solid fa-stopwatch mr-1 text-gold-500"></i> Estructura de Carga: <span class="text-gold-400 font-bold">${plan.series}</span></p>
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <p class="text-xs font-bold text-gold-400 uppercase">Protocolo Metodológico de Ejecución:</p>
+                            <ul class="list-disc pl-5 text-xs text-slate-300 space-y-1.5">
+                                ${plan.rutina.map(r => `<li>${r}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderNutricionSelect() {
+            const select = document.getElementById('nutAtletaSelect');
+            if(!select) return; select.innerHTML = "";
+            personas.forEach(a => { select.innerHTML += `<option value="${a.id}">${a.nombre} (${a.disciplina} - ${a.nivel})</option>`; });
+        }
+
+        // --- MOTOR NUTRICIONAL MAESTRO: 8 SEMANAS (MES 1 VS MES 2) & MINUTAS 7 DÍAS ---
+        function generarCampamentoNutricionalPro(e) {
+            e.preventDefault();
+            const aId = document.getElementById('nutAtletaSelect').value;
+            const a = personas.find(p => p.id == aId);
+            const tipo = document.getElementById('nutTipoAtleta').value;
+            const pesoAct = parseFloat(document.getElementById('nutPesoActual').value) || 77.5;
+            const pesoObj = parseFloat(document.getElementById('nutPesoObj').value) || 70.0;
+            const fechaCombate = document.getElementById('nutFechaCombate').value || "2026-12-15";
+            const deltaPeso = (pesoAct - pesoObj).toFixed(1);
+
+            const proteinasGrams = Math.round(pesoAct * 2.2);
+            const caloriasBaseMes1 = Math.round(pesoAct * 32);
+            const caloriasMes2 = Math.round(caloriasBaseMes1 - (deltaPeso > 0 ? deltaPeso * 140 : 250));
+
+            const containerResult = document.getElementById('detalleCampamentoNutricional');
+            if(!containerResult) return;
+
+            let protocoloRehidratacionHTML = tipo === "profesional" ? `
+                <div class="bg-emerald-950/40 p-6 rounded-2xl border-2 border-emerald-500/50 space-y-4 text-xs text-slate-200">
+                    <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wide"><i class="fa-solid fa-droplet mr-1.5"></i> Protocolo de Rehidratación Masiva Post-Báscula (24 Horas antes del Combate)</h3>
+                    <p class="text-slate-300">Inmediatamente superada la báscula oficial, el atleta ${a ? a.nombre : 'Atleta'} inicia el protocolo de recuperación hidroelectrolítica y reposición de glucógeno muscular y hepático:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase block">Horas 0 a 2 (Rehidratación Celular):</strong>
+                            <p class="text-slate-300">500ml de solución de rehidratación oral (electrolitos con sodio y potasio) + 300ml de agua de coco natural. Ingesta sorbo a sorbo.</p>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase block">Horas 2 a 6 (Carga de Glucógeno):</strong>
+                            <p class="text-slate-300">Arroz blanco hervido (180g) + Pechuga de pollo a la plancha (150g) + 1 plátano maduro cocido. Hidratación con agua mineral plana (1.5 litros).</p>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase block">Horas 6 a 12 (Comida Principal):</strong>
+                            <p class="text-slate-300">Pasta de trigo sarraceno o integral (200g cocida) con carne magra de res (180g) y aceite de oliva virgen extra (15ml). Descanso nocturno de 9 horas.</p>
+                        </div>
+                    </div>
+                </div>
+            ` : `
+                <div class="bg-amber-950/40 p-6 rounded-2xl border-2 border-amber-500/50 space-y-3 text-xs text-slate-200">
+                    <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wide"><i class="fa-solid fa-scale-balanced mr-1.5"></i> Protocolo de Pesaje Mismo Día (Atleta Amateur)</h3>
+                    <p class="text-slate-300">Al efectuarse el pesaje el mismo día del combate, se mantiene una ingesta estricta de ${caloriasMes2} Kcal y consumo hídrico constante de 4.5 litros diarios de agua con electrolitos hasta 2 horas antes de entrar al ring.</p>
+                </div>
+            `;
+
+            containerResult.innerHTML = `
+                <!-- ENCABEZADO DOSIER -->
+                <div class="bg-slate-950 p-6 rounded-2xl border border-emerald-500/40 space-y-6">
+                    <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <span class="px-3 py-1 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-extrabold uppercase">Dosier Nutricional Maestro Federado • MMA Tolima</span>
+                            <h3 class="text-xl font-bold text-slate-100 mt-2">${a ? a.nombre : 'Atleta Oficial'}</h3>
+                            <p class="text-xs text-slate-400">Disciplina: <strong class="text-gold-400">${a ? a.disciplina : 'Combate'}</strong> | Nivel: <strong class="text-slate-200">${a ? a.nivel : 'Elite'}</strong> | Meta Báscula: <strong class="text-gold-400">${fechaCombate}</strong></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-slate-400">Peso Actual: <strong class="text-slate-200">${pesoAct} Kg</strong></p>
+                            <p class="text-xs text-slate-400">Báscula Objetivo: <strong class="text-gold-400 font-bold">${pesoObj} Kg</strong></p>
+                            <p class="text-xs text-rose-400 font-bold">Delta a Cortar: ${deltaPeso} Kg</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center">
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold block">Calorías Mes 1 (Base)</span>
+                            <span class="text-base font-bold text-emerald-400">${caloriasBaseMes1} Kcal</span>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold block">Proteína Diaria (2.2g/Kg)</span>
+                            <span class="text-base font-bold text-gold-400">${proteinasGrams}g / día</span>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold block">Calorías Mes 2 (Corte)</span>
+                            <span class="text-base font-bold text-rose-400">${caloriasMes2} Kcal</span>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-bold block">Agua Diaria Campamento</span>
+                            <span class="text-base font-bold text-slate-200">4.5 - 5.0 Litros</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DESGLOSE DE LAS 8 SEMANAS (MES 1 VS MES 2) -->
+                <div class="bg-slate-950 p-6 rounded-2xl border border-gold-500/30 space-y-6">
+                    <h3 class="text-lg font-bold text-gold-500 uppercase border-b border-slate-800 pb-3 flex items-center">
+                        <i class="fa-solid fa-calendar-days mr-2"></i> Periodización de 8 Semanas: Evolución Nutricional de Mes 1 a Mes 2
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                        <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-3">
+                            <h4 class="font-bold text-emerald-400 uppercase text-sm">📅 MES 1: Semanas 8, 7, 6 y 5 (Fase Base y Fuerza Útil)</h4>
+                            <p class="text-slate-300"><strong>Calorías:</strong> ${caloriasBaseMes1} Kcal | <strong>Proteína:</strong> ${proteinasGrams}g | <strong>Carbohidratos:</strong> ${Math.round((caloriasBaseMes1*0.48)/4)}g</p>
+                            <p class="text-slate-300 leading-relaxed">Foco en rendimiento máximo, fuerza y adaptación cardiovascular. El atleta consume porciones más altas de carbohidratos complejos (arroz integral, avena) para sostener los entrenamientos intensos de sparring. No hay restricciones severas de fibra.</p>
+                        </div>
+
+                        <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-3">
+                            <h4 class="font-bold text-rose-400 uppercase text-sm">📅 MES 2: Semanas 4, 3, 2 y 1 (Fase de Afinación y Corte Final)</h4>
+                            <p class="text-slate-300"><strong>Calorías:</strong> ${caloriasMes2} Kcal (-15% aprox.) | <strong>Proteína:</strong> ${proteinasGrams}g | <strong>Carbohidratos:</strong> ${Math.round((caloriasMes2*0.35)/4)}g</p>
+                            <p class="text-slate-300 leading-relaxed"><strong>La dieta varía y se ajusta drásticamente al acercarse a la competencia.</strong> Se reducen los carbohidratos en la cena, se priorizan vegetales de hoja verde y en las últimas dos semanas se ejecuta descarga de fibra para vaciado estomacal.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MINUTA DIARIA ESPECÍFICA DE LOS 7 DÍAS - MES 1 -->
+                <div class="bg-slate-950 p-6 rounded-2xl border border-emerald-500/40 space-y-6">
+                    <h3 class="text-lg font-bold text-emerald-400 uppercase border-b border-slate-800 pb-3 flex items-center">
+                        <i class="fa-solid fa-utensils mr-2"></i> Minuta Nutricional Específica • MES 1 (Semanas 8 a 5) - Los 7 Días con Porciones Exactas en Gramos
+                    </h3>
+                    <p class="text-xs text-slate-400">Menú estructurado para rendimiento físico óptimo y mantenimiento metabólico durante el primer mes.</p>
+
+                    <div class="space-y-4 text-xs">
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 1 (Lunes - Mes 1)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">1. Desayuno (07:00 AM)</strong> Avena integral (80g), 4 claras y 1 yema, frutos rojos (80g), café negro.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">2. Intermedia (11:00 AM)</strong> 1 manzana mediana (150g), 30g de almendras.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">3. Almuerzo (02:00 PM)</strong> Pechuga de pollo (180g), arroz integral (150g), brócoli (150g), aceite de oliva (10ml).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">4. Onces (05:30 PM)</strong> Yogur griego (200g), mantequilla de maní (20g), 1 banano (100g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">5. Cena (09:00 PM)</strong> Salmón (200g), espinacas salteadas (150g), aguacate (70g).</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 2 (Martes - Mes 1)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">1. Desayuno (07:00 AM)</strong> Pan integral (2 rebanadas / 60g), 3 huevos enteros, jugo de naranja (200ml).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">2. Intermedia (11:00 AM)</strong> 1 pera madura (160g), 30g de nueces.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">3. Almuerzo (02:00 PM)</strong> Lomo de res (170g), puré de papa (150g), ensalada de tomate y lechuga (150g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">4. Onces (05:30 PM)</strong> Proteína whey (1 scoop / 30g) en agua, 1 tortita de arroz (15g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">5. Cena (09:00 PM)</strong> Atún en agua (2 latas / 160g), ensalada mixta (160g), aceite de oliva (10ml).</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 3 (Miércoles - Mes 1)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">1. Desayuno (07:00 AM)</strong> Arepa de maíz (90g), queso campesino (70g), 2 huevos revueltos.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">2. Intermedia (11:00 AM)</strong> Uvas frescas (140g), 25g de almendras.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">3. Almuerzo (02:00 PM)</strong> Pechuga de pollo (180g), pasta integral (140g), calabacín (150g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">4. Onces (05:30 PM)</strong> Yogur griego (200g), arándanos deshidratados (25g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">5. Cena (09:00 PM)</strong> Pescado blanco (200g), brócoli al vapor (160g), aceite de oliva.</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 4 (Jueves - Mes 1)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">1. Desayuno (07:00 AM)</strong> Panqueques de avena (70g avena + 3 claras + 1 banano).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">2. Intermedia (11:00 AM)</strong> Manzana verde (150g), 30g nueces.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">3. Almuerzo (02:00 PM)</strong> Lomo de cerdo (170g), arroz (140g), ensalada de repollo (150g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">4. Onces (05:30 PM)</strong> Proteína whey (30g) con leche descremada (250ml).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">5. Cena (09:00 PM)</strong> Omelette (3 claras + 1 huevo), champiñones (150g).</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 5 (Viernes - Mes 1)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">1. Desayuno (07:00 AM)</strong> Avena (75g), 1 huevo tibio, frutos rojos (80g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">2. Intermedia (11:00 AM)</strong> Piña fresca (160g), 30g almendras.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">3. Almuerzo (02:00 PM)</strong> Pechuga de pollo (180g), yuca cocida (130g), vegetales (150g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">4. Onces (05:30 PM)</strong> Yogur griego (200g), mantequilla de maní (15g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">5. Cena (09:00 PM)</strong> Salmón (190g), ensalada verde, aguacate (60g).</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 6 (Sábado - Mes 1)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">1. Desayuno (07:00 AM)</strong> Tostadas integrales (2) con aguacate (60g), 3 claras revueltas.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">2. Intermedia (11:00 AM)</strong> Banano maduro (110g), 25g nueces.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">3. Almuerzo (02:00 PM)</strong> Carne de res magra (180g), papa cocida (160g), ensalada (150g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">4. Onces (05:30 PM)</strong> Proteína whey (30g) en agua, 5 fresas.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">5. Cena (09:00 PM)</strong> Atún (2 latas), espinacas salteadas.</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 7 (Domingo - Mes 1)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">1. Desayuno (07:00 AM)</strong> Omelette (3 claras + 1 huevo), arepa pequeña (60g), café.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">2. Intermedia (11:00 AM)</strong> Manzana verde (150g), 30g almendras.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">3. Almuerzo (02:00 PM)</strong> Pechuga de pollo (180g), arroz integral (130g), calabacín (150g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">4. Onces (05:30 PM)</strong> Yogur griego (200g), arándanos (20g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-emerald-400 block">5. Cena (09:00 PM)</strong> Pescado blanco (200g), espárragos (140g), aceite de oliva.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MINUTA DIARIA ESPECÍFICA DE LOS 7 DÍAS - MES 2 -->
+                <div class="bg-slate-950 p-6 rounded-2xl border border-rose-500/40 space-y-6">
+                    <h3 class="text-lg font-bold text-rose-400 uppercase border-b border-slate-800 pb-3 flex items-center">
+                        <i class="fa-solid fa-utensils mr-2"></i> Minuta Nutricional Específica • MES 2 (Semanas 4 a 1 - Afinación y Corte Cercano a Báscula)
+                    </h3>
+                    <p class="text-xs text-slate-400">Menú ajustado con menor densidad calórica, reducción táctica de carbohidratos nocturnos y porciones milimétricas para asegurar la llegada al peso exacto.</p>
+
+                    <div class="space-y-4 text-xs">
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 1 (Lunes - Mes 2 / Afinación)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">1. Desayuno (07:00 AM)</strong> Avena integral reducida (50g), 5 claras y 1 yema, té verde sin azúcar.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">2. Intermedia (11:00 AM)</strong> 1 media manzana verde (90g), 20g de almendras.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">3. Almuerzo (02:00 PM)</strong> Pechuga de pollo (190g neto), arroz integral reducido (80g), brócoli (180g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">4. Onces (05:30 PM)</strong> Yogur griego desnatado (200g) sin maní (solo canela).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">5. Cena (09:00 PM)</strong> Pescado blanco magro (210g), espinacas al vapor (200g) sin carbohidratos ni aceite pesado.</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 2 (Martes - Mes 2 / Afinación)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">1. Desayuno (07:00 AM)</strong> 1 rebanada de pan integral (30g), 4 claras revueltas, café negro.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">2. Intermedia (11:00 AM)</strong> 20g de nueces de marañón solas.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">3. Almuerzo (02:00 PM)</strong> Lomo de res magro (180g), puré de ahuyama o zapallo (120g), ensalada verde (180g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">4. Onces (05:30 PM)</strong> Proteína aislada whey (1 scoop / 30g) en agua pura.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">5. Cena (09:00 PM)</strong> Atún en agua (2 latas / 160g) con pepino cohombro en rodajas (180g).</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 3 (Miércoles - Mes 2 / Afinación)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">1. Desayuno (07:00 AM)</strong> Tortilla de 5 claras con espinacas y infusión de jengibre.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">2. Intermedia (11:00 AM)</strong> 1 toronja o pomelo pequeño (120g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">3. Almuerzo (02:00 PM)</strong> Pechuga de pavo (190g), pasta integral reducida (70g), calabacín (180g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">4. Onces (05:30 PM)</strong> Yogur griego desnatado (180g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">5. Cena (09:00 PM)</strong> Pescado blanco al horno (210g) con espárragos (160g).</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 4 (Jueves - Mes 2 / Afinación)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">1. Desayuno (07:00 AM)</strong> Panqueques fit (40g avena + 4 claras en sartén teflón sin aceite).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">2. Intermedia (11:00 AM)</strong> 20g de almendras tostadas sin sal.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">3. Almuerzo (02:00 PM)</strong> Lomo de cerdo magro (180g), quinua cocida (70g), ensalada de repollo (180g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">4. Onces (05:30 PM)</strong> Proteína whey (30g) en agua.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">5. Cena (09:00 PM)</strong> Revuelto de 4 claras y champiñones (180g) sin yemas.</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 5 (Viernes - Mes 2 / Afinación)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">1. Desayuno (07:00 AM)</strong> Avena ligera (50g) en agua, 4 claras revueltas.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">2. Intermedia (11:00 AM)</strong> 5 fresas frescas (80g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">3. Almuerzo (02:00 PM)</strong> Pechuga de pollo (190g), yuca pequeña (80g), brócoli al vapor (180g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">4. Onces (05:30 PM)</strong> Yogur griego (180g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">5. Cena (09:00 PM)</strong> Salmón porción moderada (160g) con ensalada verde pura.</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 6 (Sábado - Mes 2 / Afinación)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">1. Desayuno (07:00 AM)</strong> 1 tostada integral, 4 claras revueltas con tomate y cebolla.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">2. Intermedia (11:00 AM)</strong> 20g de nueces.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">3. Almuerzo (02:00 PM)</strong> Carne de res magra (180g), papa cocida pequeña (100g), ensalada (180g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">4. Onces (05:30 PM)</strong> Proteína whey (30g) en agua.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">5. Cena (09:00 PM)</strong> Atún en agua (2 latas / 160g) con espinacas.</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <strong class="text-gold-400 uppercase text-sm block">📅 Día 7 (Domingo - Mes 2 / Afinación Final)</strong>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-slate-300">
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">1. Desayuno (07:00 AM)</strong> Omelette de 4 claras con espinacas, té verde.</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">2. Intermedia (11:00 AM)</strong> Media manzana verde (90g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">3. Almuerzo (02:00 PM)</strong> Pechuga de pollo (190g), arroz integral (70g), calabacín (180g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">4. Onces (05:30 PM)</strong> Yogur griego desnatado (180g).</div>
+                                <div class="bg-slate-950 p-3 rounded-lg"><strong class="text-rose-400 block">5. Cena (09:00 PM)</strong> Pescado blanco (210g) con espárragos al vapor (160g).</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROTOCOLO DE REHIDRATACIÓN -->
+                <div>
+                    ${protocoloRehidratacionHTML}
+                </div>
+            </div>
+            `;
+            document.getElementById('resultadoCampamentoContainer').classList.remove('hidden');
+            alert(`¡Dosier nutricional maestro de 8 semanas con diferenciación de Mes 1 y Mes 2 generado con éxito para ${a ? a.nombre : 'Atleta'}!`);
+        }
+
+        function guardarProyeccion(e) {
+            e.preventDefault();
+            if(!esAdmin) return;
+            const aId = document.getElementById('proAtletaSelect').value;
+            const a = personas.find(p => p.id == aId);
+            proyecciones.push({ id: Date.now(), nombre: a ? a.nombre : '', disciplina: document.getElementById('proDisciplina').value, campeonato: document.getElementById('proCampeonato').value, estatus: document.getElementById('proEstatus').value });
+            saveDataLocal(); alert("¡Proyección guardada!"); renderProyecciones();
+        }
+
+        function renderProyecciones() {
+            const select = document.getElementById('proAtletaSelect');
+            if(select) { select.innerHTML = ""; personas.forEach(a => { select.innerHTML += `<option value="${a.id}">${a.nombre}</option>`; }); }
+            const grid = document.getElementById('proyeccionesGrid');
+            if(!grid) return; grid.innerHTML = "";
+            proyecciones.forEach(p => { grid.innerHTML += `<div class="bg-slate-900 border border-slate-800 rounded-xl p-4"><span class="text-gold-400 text-xs font-bold">${p.disciplina}</span><h4 class="font-bold text-slate-100">${p.nombre}</h4><p class="text-xs text-slate-300">Meta: ${p.campeonato}</p></div>`; });
+        }
+
+        // Inicialización general
+        window.addEventListener('DOMContentLoaded', () => {
+            if(document.getElementById('appLogoDisplay')) {
+                document.getElementById('appLogoDisplay').src = customLogo;
+            }
+            renderAtletas();
+            renderTienda();
+            renderSponsors();
+            renderSalonFama();
+            renderCaja();
+            actualizarContadorCarrito();
+        });
+    </script>
+</body>
+</html>
