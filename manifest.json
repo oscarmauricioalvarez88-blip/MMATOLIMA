@@ -9,5 +9,19 @@
   "start_url": "/MMATOLIMA/",
   "theme_color": "#8b0000",
   "id": "/MMATOLIMA/",
-  "description": "Plataforma oficial de inscripción y control de atletas de la Liga de Muay Thai y MMA del Tolima"
+  "description": "Plataforma oficial de inscripción y control de atletas de la Liga de Muay Thai y MMA del Tolima",
+  "icons": [
+    {
+      "src": "/MMATOLIMA/manifest-icon-192.maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/MMATOLIMA/manifest-icon-512.maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
